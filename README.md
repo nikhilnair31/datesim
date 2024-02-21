@@ -11,7 +11,7 @@ This repository contains code for a tool named datesim, which processes images c
 
 ## Prerequisites
 
-- Python 3.7 or above
+- Python 3.11
 - Tesseract OCR installed
 - OpenAI API key
 - Together API key
@@ -55,24 +55,8 @@ This repository contains code for a tool named datesim, which processes images c
 2. Enter your username.
 3. Upload images containing text.
 4. Click "Process Images" to extract text and simulate conversations.
-5. Optionally, click "Run Simulation" to simulate conversations.
+5. Then, click "Run Simulation" to simulate conversations.
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature-name`).
-3. Commit your changes (`git commit -am 'Add some feature'`).
-4. Push to the branch (`git push origin feature/your-feature-name`).
-5. Create a new Pull Request.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Acknowledgements
-
-- The developers of Tesseract OCR and Streamlit.
-- OpenAI for providing access to their powerful AI models.
-- Together for their collaboration platform and API.
+Contributions are welcome! If you'd like to contribute to this project, please fork the repository

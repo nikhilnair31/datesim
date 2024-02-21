@@ -89,18 +89,11 @@ def update_or_insert_data(username, formatted_texts):
     print(f"Username checked!: {existing_user}")
 
     if existing_user:
-        if existing_user == "":
-            print(f"Updating existing record...")
-            query = "UPDATE info SET conv_style = ?, ran_sim = ?, usernames_simmed = ? WHERE username = ?"
-            data = (str(formatted_texts), False, "[]", username)
-            run_script_on_db( query, data, action_type="insert" )
-            print(f"Updated existing record!: {data}")
-        else:
-            print(f"Inserting new record...")
-            query = "INSERT INTO info (username, conv_style, ran_sim, usernames_simmed) VALUES (?, ?, ?, ?)"
-            data = (username, str(formatted_texts), False, "[]")
-            run_script_on_db( query, data, action_type="insert" )
-            print(f"Inserted record!: {data}")
+        print(f"Updating existing record...")
+        query = "UPDATE info SET conv_style = ?, ran_sim = ?, usernames_simmed = ? WHERE username = ?"
+        data = (str(formatted_texts), False, "[]", username)
+        run_script_on_db( query, data, action_type="insert" )
+        print(f"Updated existing record!: {data}")
     else:
         print(f"Inserting new record...")
         query = "INSERT INTO info (username, conv_style, ran_sim, usernames_simmed) VALUES (?, ?, ?, ?)"
@@ -222,7 +215,7 @@ def pull_conv():
             
             if curr_username and formatted_texts:
                 update_or_insert_data(curr_username, formatted_texts)
-                st.write("Data inserted/updated successfully!")
+                st.success("Data inserted/updated successfully!")
     else:
         st.error(f"Please upload exactly {img_num} images.")
 def run_simulation():
@@ -242,71 +235,55 @@ def run_simulation():
     print(f"curr_username: {curr_username}\n")
 
     # Fetch a list of unsimmed usernames
-    list_of_all_usernames = run_script_on_db(
-        "\nFetching all usernames...",
-        "\nFetched all usernames!",
-        "SELECT DISTINCT username FROM info WHERE username != ?",
-        (curr_username,),
-        "check"
-    )
+    print(f"Fetching all usernames...")
+    query = "SELECT DISTINCT username FROM info WHERE username != ?"
+    data = (curr_username,)
+    list_of_all_usernames = run_script_on_db( query, data, "check" )
     list_of_all_usernames = [username[0] for username in list_of_all_usernames]
-    print(f"list_of_all_usernames\n{list_of_all_usernames}\n")
+    print(f"Fetched all usernames!\n{list_of_all_usernames}\n")
 
     # Fetch a list of simmed usernames
-    list_of_simmed_usernames = run_script_on_db(
-        "Fetching simmed usernames...",
-        "Fetched simmed usernames!",
-        "SELECT usernames_simmed FROM info WHERE username = ?",
-        (curr_username,),
-        "check"
-    )
-    # print(f"list_of_simmed_usernames\n{list_of_simmed_usernames}\n")
+    print(f"Fetching simmed usernames...")
+    query = "SELECT usernames_simmed FROM info WHERE username = ?"
+    data = (curr_username,)
+    list_of_simmed_usernames = run_script_on_db( query, data, "check" )
     list_of_simmed_usernames = [username[0] for username in list_of_simmed_usernames]
-    # print(f"list_of_simmed_usernames\n{list_of_simmed_usernames}\n")
     if list_of_simmed_usernames[0] != '':
         list_of_simmed_usernames = eval(list_of_simmed_usernames[0] )
     else:
         list_of_simmed_usernames = []
-    print(f"list_of_simmed_usernames\n{list_of_simmed_usernames}\n")
+    print(f"Fetched simmed usernames!\n{list_of_simmed_usernames}\n")
 
     # Calculate the list of unsimmed usernames
     list_of_unsimmed_usernames = [username for username in list_of_all_usernames if username not in list_of_simmed_usernames]
-    print(f"list_of_unsimmed_usernames\n{list_of_unsimmed_usernames}\n")
+    print(f"List of unsimmed usernames...\n{list_of_unsimmed_usernames}\n")
 
     for unsimmed_username in list_of_unsimmed_usernames:
-        print(f"unsimmed_username\n{unsimmed_username}\n")
+        print(f"Unsimmed username: {unsimmed_username}\n")
         
         # Initialize conversation history for both threads
         conversation_history = {
             curr_username: [],
             unsimmed_username: []
         }
-        print(f"conversation_history\n{conversation_history}\n")
+        print(f"Conversation history\n{conversation_history}\n")
         
         # Fetch the current username's conversation style
-        curr_username_conv_style = run_script_on_db(
-            "Fetching current username conversation style...",
-            "Fetched current username conversation style!",
-            "SELECT conv_style FROM info WHERE username = ?",
-            (str(curr_username),),
-            "check"
-        )
-        print(f"curr_username_conv_style\n{curr_username_conv_style}\n")
+        print(f"Fetching current username conversation style...")
+        query = "SELECT conv_style FROM info WHERE username = ?"
+        data = (str(curr_username),)
+        curr_username_conv_style = run_script_on_db( query, data, "check" )
         curr_username_conv_style = [username[0] for username in curr_username_conv_style]
-        print(f"curr_username_conv_style\n{curr_username_conv_style}\n")
+        print(f"Fetched current username conversation style\n{curr_username_conv_style}\n")
         conversation_history[curr_username].append({"role": "system", "content": username_system_prompt + curr_username_conv_style[0]})
 
         # Fetch the unsimmed username's conversation style
-        unsimmed_username_conv_style = run_script_on_db(
-            "Fetching unsimmed username conversation style...",
-            "Fetched current username conversation style!",
-            "SELECT conv_style FROM info WHERE username = ?",
-            (unsimmed_username,),
-            "check"
-        )
-        print(f"unsimmed_username_conv_style\n{unsimmed_username_conv_style}\n")
+        print(f"Fetching unsimmed username conversation style...")
+        query = "SELECT conv_style FROM info WHERE username = ?"
+        data = (unsimmed_username,)
+        unsimmed_username_conv_style = run_script_on_db( query, data, "check" )
         unsimmed_username_conv_style = [username[0] for username in unsimmed_username_conv_style]
-        print(f"unsimmed_username_conv_style\n{unsimmed_username_conv_style}\n")
+        print(f"Fetched unsimmed username conversation style\n{unsimmed_username_conv_style}\n")
         conversation_history[unsimmed_username].append({"role": "system", "content": username_system_prompt + unsimmed_username_conv_style[0]})
 
         # Initialize conversation with an empty string or a starting message
@@ -342,28 +319,19 @@ def run_simulation():
         list_of_simmed_usernames.append(unsimmed_username)
 
         # Update ran_sim status for the unsimmed_username to True
-        run_script_on_db(
-            "Updating ran_sim status...",
-            "Updated ran_sim status!",
-            """
-            UPDATE info 
-            SET ran_sim = ? 
-            WHERE username = ?
-            """,
-            (True, curr_username),
-            action_type="insert"
-        )
-        run_script_on_db(
-            "Updating usernames_simmed list...",
-            "Updated usernames_simmed list!\n",
-            """
-            UPDATE info 
-            SET usernames_simmed = ? 
-            WHERE username = ?
-            """,
-            (str(list_of_simmed_usernames), curr_username),
-            action_type="insert"
-        )
+        print(f"Updating ran_sim status...")
+        query = "UPDATE info SET ran_sim = ? WHERE username = ?"
+        data = (True, curr_username)
+        run_script_on_db( query, data, "insert" )
+        print(f"Updated ran_sim status!")
+
+        print(f"Updating usernames_simmed list...")
+        query = "UPDATE info SET usernames_simmed = ? WHERE username = ?"
+        data = (str(list_of_simmed_usernames), curr_username)
+        run_script_on_db( query, data, "insert" )
+        print(f"Updated usernames_simmed list!\n")
+
+        st.success("Chats Simulated")
 
 def ui():
     global curr_username, uploaded_files, img_num
@@ -379,7 +347,7 @@ def ui():
     # Training
     st.sidebar.title("Training")
     # Create a number input in the sidebar for img_num
-    img_num = st.sidebar.number_input("Number of Images", min_value=1, max_value=10, value=1, step=1)
+    img_num = st.sidebar.number_input("Number of Images", min_value=1, max_value=5, value=1, step=1)
     # Add a file uploader in the sidebar for uploading files
     uploaded_files = st.sidebar.file_uploader("Choose training images", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
 
